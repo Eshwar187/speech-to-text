@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Speech to Text App</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Poppins', sans-serif;
+        }
+
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background: linear-gradient(135deg, #52c34a, #6a74ff, #ff99fa);
+            transition: background 0.3s ease-in-out;
+        }
+
+        .container {
+            background: rgba(255, 255, 255, 0.2);
+            padding: 25px;
+            border-radius: 15px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+            text-align: center;
+            width: 90%;
+            max-width: 450px;
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        h2 {
+            color: #fff;
+            font-size: 24px;
+            margin-bottom: 15px;
+            font-weight: 600;
+        }
+
+        .output {
+            background: rgba(255, 255, 255, 0.8);
+            padding: 15px;
+            border-radius: 10px;
+            min-height: 100px;
+            color: #222;
+            text-align: left;
+            font-size: 16px;
+            font-weight: 400;
+            overflow-y: auto;
+            max-height: 200px;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+
+        .buttons {
+            margin-top: 20px;
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+        }
+
+        button, select {
+            padding: 12px 15px;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease-in-out;
+            margin: 5px;
+            width: 45%;
+        }
+
+        .start { background: #2eff2a; color: #000; }
+        .start:hover { background: #00cc7a; }
+        .stop { background: #ff6944; color: white; }
+        .stop:hover { background: #cc0000; }
+        .clear { background: #4147ff; color: white; }
+        .clear:hover { background: #0056b3; }
+        .download { background: #e41bfb; color: white; }
+        .download:hover { background: #e68900; }
+
+        select {
+            width: 100%;
+            background: rgba(255, 255, 255, 0.8);
+            color: #222;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+
+        @media (max-width: 600px) {
+            .container {
+                width: 95%;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h2>🎙️ Speech to Text Converter</h2>
+
+        <select id="language">
+            <option value="en-US">English (US)</option>
+            <option value="hi-IN">Hindi 🇮🇳</option>
+            <option value="bn-IN">Bengali 🇮🇳</option>
+            <option value="ta-IN">Tamil 🇮🇳</option>
+            <option value="te-IN">Telugu 🇮🇳</option>
+            <option value="mr-IN">Marathi 🇮🇳</option>
+            <option value="gu-IN">Gujarati 🇮🇳</option>
+            <option value="kn-IN">Kannada 🇮🇳</option>
+            <option value="ml-IN">Malayalam 🇮🇳</option>
+            <option value="pa-IN">Punjabi 🇮🇳</option>
+            <option value="ur-IN">Urdu 🇮🇳</option>
+        </select>
+
+        <div class="output" id="output">Start speaking and text will appear here...</div>
+
+        <div class="buttons">
+            <button class="start" onclick="startListening()">Start</button>
+            <button class="stop" onclick="stopListening()">Stop</button>
+            <button class="clear" onclick="clearText()">Clear</button>
+            <button class="download" onclick="downloadText()">Download</button>
+        </div>
+    </div>
+
+    <script>
+        let recognition;
+
+        function startListening() {
+            if (!('webkitSpeechRecognition' in window)) {
+                alert("Your browser does not support Speech Recognition. Try Chrome!");
+                return;
+            }
+
+            let selectedLang = document.getElementById("language").value;
+            recognition = new webkitSpeechRecognition();
+            recognition.continuous = true;
+            recognition.interimResults = true;
+            recognition.lang = selectedLang;
+
+            recognition.onresult = function(event) {
+                let transcript = "";
+                for (let i = event.resultIndex; i < event.results.length; i++) {
+                    transcript += event.results[i][0].transcript;
+                }
+                document.getElementById("output").innerText = transcript;
+            };
+
+            recognition.start();
+        }
+
+        function stopListening() {
+            if (recognition) {
+                recognition.stop();
+            }
+        }
+
+        function clearText() {
+            document.getElementById("output").innerText = "Start speaking and text will appear here...";
+        }
+
+        function downloadText() {
+            let text = document.getElementById("output").innerText;
+            let blob = new Blob([text], { type: "text/plain" });
+            let anchor = document.createElement("a");
+            anchor.href = URL.createObjectURL(blob);
+            anchor.download = "transcription.txt";
+            anchor.click();
+        }
+    </script>
+
+</body>
+</html>
